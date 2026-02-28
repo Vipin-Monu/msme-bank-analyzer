@@ -53,7 +53,36 @@ def home():
                             data.append([date, amount])
 
         df = pd.DataFrame(data, columns=["Date", "Amount"])
-        df.to_excel("All_Transactions.xlsx", index=False)
+        file_name = "All_Transactions.xlsx"
+
+df.to_excel(file_name, index=False)
+
+from openpyxl import load_workbook
+from openpyxl.styles import Font
+from openpyxl.utils import get_column_letter
+
+wb = load_workbook(file_name)
+ws = wb.active
+
+# Header Bold
+for cell in ws[1]:
+    cell.font = Font(bold=True)
+
+# Date format DD-MM-YYYY
+for row in ws.iter_rows(min_row=2, min_col=1, max_col=1):
+    for cell in row:
+        cell.number_format = "DD-MM-YYYY"
+
+# Auto column width
+for col in ws.columns:
+    max_length = 0
+    col_letter = get_column_letter(col[0].column)
+    for cell in col:
+        if cell.value:
+            max_length = max(max_length, len(str(cell.value)))
+    ws.column_dimensions[col_letter].width = max_length + 2
+
+wb.save(file_name)
 
         os.remove("statement.pdf")
 
